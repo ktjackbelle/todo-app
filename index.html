@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html ng-app="TodoApp">
+  <head>
+    <meta charset="utf-8">
+    <title>Todo</title>
+    <style>
+      .completed {
+        text-decoration: line-through;
+      }
+    </style>
+  </head>
+  <body>
+    <ul>
+      <li><a href="#/todos">Todos</a></li>
+      <li><a href="#/todos/add">Add Todo</a></li>
+    </ul>
+    <div ng-view></div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-route.js"></script>
+    <script>
+      angular
+        .module('TodoApp', [
+          'ngRoute',
+        ])
+        .config(function($routeProvider) {
+          $routeProvider
+            .when('/todos', {
+              controller: 'TodoController',
+              templateUrl: 'partials/todo-controller.html',
+            })
+            .when('/todos/add', {
+              controller: 'AddTodoController',
+              templateUrl: 'partials/add-todo-controller.html',
+            })
+            .when('/notFound', {
+              templateUrl: 'partials/not-found.html',
+            })
+            .otherwise('/notFound');
+        })
+        .controller('TodoController', function($scope, todosFactory) {
+          $scope.todos = todosFactory.list;
+          $scope.delete = function(index) {
+            todosFactory.delete(index);
+          };
+        })
+        .controller('AddTodoController', function($scope, todosFactory, $location) {
+          $scope.submit = function() {
+            todosFactory.create($scope.todoName);
+            $scope.todoName = '';
+            $location.url('/todos');
+          };
+        })
+        .factory('todosFactory', function($q, $http) {var list = [];
+          var list = [];
+          function create(name) {
+            list.push({
+              name: name,
+              completed: false,
+            });
+          }
+          function remove(index) {
+            list.splice(index, 1);
+          }
+          return {
+            list: list,
+            create: create,
+            delete: remove,
+          };
+        })
+    </script>
+  </body>
+</html>
